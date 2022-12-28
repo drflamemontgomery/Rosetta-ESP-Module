@@ -6,5 +6,5 @@ void setup(){
 
 void loop(){
     // Handle for OTA flashing
-    ArduinoOTA.handle();
+    ota_handle();
 }

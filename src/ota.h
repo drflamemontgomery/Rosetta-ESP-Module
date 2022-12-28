@@ -6,6 +6,7 @@ extern "C" {
 #endif // __CPLUSPLUS
 
 void ota_setup();
+void ota_handle();
 
 #ifdef __CPLUSPLUS
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export FQBN=esp32:esp32:esp-dev-module
+export FQBN=esp32:esp32:esp32wrover
 
-arduino-cli compile --fqbn $FQBN Rosetta-esp-module
+arduino-cli compile --fqbn $FQBN
