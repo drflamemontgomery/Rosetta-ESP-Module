@@ -4,8 +4,8 @@
 #include <ArduinoOTA.h>
 #include "secrets.h"
 
-const char* ssid = "..........";
-const char* password = "..........";
+const char* ssid = SECRET_SSID;
+const char* password = SECRET_PASSWORD;
 
 void ota_setup() {
   Serial.begin(115200);
