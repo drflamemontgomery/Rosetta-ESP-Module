@@ -17,4 +17,5 @@ Module: ESP32
 | 13   | No       |                                                   |
 | 14   | No       |                                                   |
 | 15   | No       | Startup log if 3V3                                |
-...
+| 21   | I2C0 SDA |                                                   |
+| 22   | I2C0 SCL |                                                   |
