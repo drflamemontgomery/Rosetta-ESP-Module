@@ -1,3 +1,4 @@
 src/secrets.h
+build_config.json
 debug*
 esp32.svd
