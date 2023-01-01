@@ -24,7 +24,7 @@ void ota_setup()
     // ArduinoOTA.setPort(3232);
 
     // Hostname defaults to esp3232-[MAC]
-    // ArduinoOTA.setHostname("myesp32");
+    ArduinoOTA.setHostname("Rosetta-ESP32");
 
     // No authentication by default
     // ArduinoOTA.setPassword("admin");
