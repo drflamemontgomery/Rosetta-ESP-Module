@@ -1,10 +1,11 @@
-#include "src/ota.h"
+#include "src/ota.hpp"
 
 void setup(){
     ota_setup();
 }
 
 void loop(){
-    // Handle for OTA flashing
+    // OTA update handler
     ota_handle();
+
 }

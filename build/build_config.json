@@ -1,0 +1,5 @@
+{
+    "port_usb": "user-configured",
+    "fqbn": "esp32:esp32:esp32",
+    "port_ota": "user-configured"
+}
