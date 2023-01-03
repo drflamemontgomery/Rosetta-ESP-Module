@@ -1,3 +1,4 @@
+#include "src/controllers.hpp"
 #include "src/ota.hpp"
 
 // Specify which serial port is used for debug statements
@@ -5,7 +6,12 @@
 #define DEBUG
 #define HostUART Serial2
 
+// Declare the global constants
 const byte i2c_address = 0x20;
+const uint8_t MAX_BLUETOOTH_DEVICES = 9;
+
+// Statically allocate the maximum number of bluetooth devices
+Controller controllers[MAX_BLUETOOTH_DEVICES];
 
 void setup()
 {
@@ -32,4 +38,4 @@ void loop()
 
 // Event request function called when a request is received
 // More details of inter processor communication to implement
-void i2cRequest(void) { Wire.send('a') }
+void i2cRequest(void) { Wire.send('a'); }

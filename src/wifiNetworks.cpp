@@ -10,31 +10,78 @@
 #include "string.h"
 
 enum WifiConnectionState {
+    CHECK_SAVED_WIFI_CONNECTION,
     NO_WIFI_CONNECTION_SAVED,
     WIFI_CONNECTION_SAVED,
     UPDATE_WIFI_DETAILS,
     SEARCH_FOR_WIFI_NETWORK,
+    SELECT_WIFI_NETWORK,
+    CONNECT_TO_WIFI_NETWORK,
+    SAVE_NETWORK_TO_EEPROM,
     BOOT_ROSETTA
-}
+};
 
 // The state machine for connecting and saving a wifi network
 void WifiUtilityStateMachine(WifiConnectionState state)
 {
     switch (state) {
+    case CHECK_SAVED_WIFI_CONNECTION:
+        state = checkSavedWifiConnection();
+        break;
     case NO_WIFI_CONNECTION_SAVED:
-        SearchForConnection();
         state = SEARCH_FOR_WIFI_NETWORK;
         break;
     case WIFI_CONNECTION_SAVED:
-        QueryUpdateWifiDetails();
+        state = queryUpdateWifiDetails();
         break;
     case SEARCH_FOR_WIFI_NETWORK:
-        SearchForConnection();
+        state = searchForConnection();
+        break;
+    case SELECT_WIFI_NETWORK:
+        state = queryNetworkNumber();
+        break;
+    case CONNECT_TO_WIFI_NETWORK:
+        state = connectToNetwork();
+        break;
+    case SAVE_NETWORK_TO_EEPROM:
+        state = saveNetworkToEeprom();
+        break;
+    case BOOT_ROSETTA:
+        // Exit the state machine
+        break;
+    default:
+        DebugSerial.println("Fell into default Wifi Utility State Machine. Booting to Rosetta ...");
+        state = BOOT_ROSETTA;
         break;
     }
 }
 
-void SearchForConnection()
+WifiConnectionState checkSavedWifiConnection(void)
+{
+    //** Read EEPROM and check if a state is stored
+    if (valid_wifi_config) {
+        return WIFI_CONNECTION_SAVED;
+    }
+    return NO_WIFI_CONNECTION_SAVED;
+}
+
+WifiConnectionState queryUpdateWifiDetails()
+{
+    // Prompt user for input
+    string prompt = "Network $NETWORK saved. Update wifi network details (y/n)?";
+
+    //**Get input
+
+    if (input == 'y') {
+        return SEARCH_FOR_WIFI_NETWORK;
+    } else if (input == 'n') {
+        return BOOT_ROSETTA;
+    }
+    // print invalid input
+    return WIFI_CONNECTION_SAVED;
+}
+
+WifiConnectionState searchForConnection()
 {
     // Set WiFi to station mode and disconnect from an AP if it was previously connected.
     WiFi.mode(WIFI_STA);
@@ -43,74 +90,52 @@ void SearchForConnection()
 
     // WiFi.scanNetworks will return the number of networks found.
     int n = WiFi.scanNetworks();
-    Serial.println("Scan done");
+    DebugSerial.println("Scan done");
     if (n == 0) {
-        Serial.println("no networks found");
+        DebugSerial.println("no networks found");
     } else {
-        Serial.print(n);
-        Serial.println(" networks found");
-        Serial.println("Nr | SSID                             | RSSI | CH | Encryption");
+        DebugSerial.print(n);
+        DebugSerial.println(" networks found");
+        DebugSerial.println("Nr | SSID                             | RSSI");
         for (int i = 0; i < n; ++i) {
-            // Print SSID and RSSI for each network found
-            Serial.printf("%2d", i + 1);
-            Serial.print(" | ");
-            Serial.printf("%-32.32s", WiFi.SSID(i).c_str());
-            Serial.print(" | ");
-            Serial.printf("%4d", WiFi.RSSI(i));
-            Serial.print(" | ");
-            Serial.printf("%2d", WiFi.channel(i));
-            Serial.print(" | ");
-            switch (WiFi.encryptionType(i)) {
-            case WIFI_AUTH_OPEN:
-                Serial.print("open");
-                break;
-            case WIFI_AUTH_WEP:
-                Serial.print("WEP");
-                break;
-            case WIFI_AUTH_WPA_PSK:
-                Serial.print("WPA");
-                break;
-            case WIFI_AUTH_WPA2_PSK:
-                Serial.print("WPA2");
-                break;
-            case WIFI_AUTH_WPA_WPA2_PSK:
-                Serial.print("WPA+WPA2");
-                break;
-            case WIFI_AUTH_WPA2_ENTERPRISE:
-                Serial.print("WPA2-EAP");
-                break;
-            case WIFI_AUTH_WPA3_PSK:
-                Serial.print("WPA3");
-                break;
-            case WIFI_AUTH_WPA2_WPA3_PSK:
-                Serial.print("WPA2+WPA3");
-                break;
-            case WIFI_AUTH_WAPI_PSK:
-                Serial.print("WAPI");
-                break;
-            default:
-                Serial.print("unknown");
-            }
-            Serial.println();
+            //** implement prompt of wifi networks that isn't debug
+            debug_printWifiNetworks();
             delay(10);
         }
     }
     Serial.println("");
 
+    return SELECT_WIFI_NETWORK;
+}
+
+WifiConnectionState queryNetworkNumber(int& networkNumber)
+{
+    // Prompt user for input
+    string prompt = "Which network do you want to connect to (1-9)?";
+
+    //**Get input
+
+    // handle state connected to - check for out of range / invalid state,
+    // print invalid input
+    return CONNECT_TO_WIFI_NETWORK;
+}
+
+WifiConnectionState connectToNetwork() { return SAVE_NETWORK_TO_EEPROM; }
+
+WifiConnectionState saveNetworkToEeprom()
+{
+    // Save the network ssid and hashed password to eeprom, potentially use min json
+
     // Delete the scan result to free memory for code below.
     WiFi.scanDelete();
 }
 
-void QueryUpdateWifiDetails()
+void debug_printWifiNetworks(int wifi_index)
 {
-    // Prompt user for input
-    string prompt = "Network $NETWORK saved. Update wifi network details (y/n)?";
-    //**Get input
-    if (input == 'y') {
-        return SEARCH_FOR_WIFI_NETWORK;
-    } else if (input == 'n') {
-        return BOOT_ROSETTA;
-    }
-    // print invalid input
-    return WIFI_CONNECTION_SAVED;
+    DebugSerial.printf("%2d", wifi_index + 1);
+    DebugSerial.print(" | ");
+    DebugSerial.printf("%-32.32s", WiFi.SSID(wifi_index).c_str());
+    DebugSerial.print(" | ");
+    DebugSerial.printf("%4d", WiFi.RSSI(wifi_index));
+    DebugSerial.println();
 }

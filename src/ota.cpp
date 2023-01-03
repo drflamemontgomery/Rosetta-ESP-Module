@@ -1,3 +1,11 @@
+/*
+    Over The Air flash code. Based on Arduino example sketches for the ESP32. Implements the functions to setup the OTA
+   flashing and creates the handle that needs to be called regularly.
+
+    Currently the SSID and password are found in secrets.h which is setup to not be pushed to the GitHub repository.
+   This will be changing to the Wifi Connection Utility with future updates.
+*/
+
 #include <ArduinoOTA.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
